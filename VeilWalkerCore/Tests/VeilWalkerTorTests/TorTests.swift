@@ -84,3 +84,28 @@ final class TorLiveTests: XCTestCase {
         XCTAssertEqual(history.map(\.day), [today])
     }
 }
+
+/// Starts a real snowflake against the Tor Project's broker for 60 s. Opt-in: VW_LIVE=1.
+final class SnowflakeLiveTests: XCTestCase {
+    override func setUpWithError() throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["VW_LIVE"] == "1", "set VW_LIVE=1 to run a real snowflake")
+    }
+
+    func testSnowflakeStartsAndStops() async throws {
+        let relayed = Counter()
+        SnowflakeHost.shared.start(capacity: 1) { relayed.add($0) }
+        try await Task.sleep(for: .seconds(60))
+        XCTAssertTrue(SnowflakeHost.shared.isRunning, SnowflakeHost.shared.lastError ?? "")
+        XCTAssertNil(SnowflakeHost.shared.lastError)
+        print("snowflake relayed \(relayed.value) bytes in 60 s (0 is normal: depends on being matched with a client)")
+        SnowflakeHost.shared.stop()
+        XCTAssertFalse(SnowflakeHost.shared.isRunning)
+    }
+
+    final class Counter: @unchecked Sendable {
+        private let lock = NSLock()
+        private var n: Int64 = 0
+        func add(_ v: Int64) { lock.withLock { n += v } }
+        var value: Int64 { lock.withLock { n } }
+    }
+}

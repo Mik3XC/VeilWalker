@@ -266,6 +266,17 @@ public final class Store: Sendable {
         }
     }
 
+    /// Minutes of Snowflake hosting during a walk: what frosts the badge frames (status only, never points).
+    public func addWalkSnowflakeMinutes(id: Int64, minutes: Int64) throws {
+        try db.write { db in
+            try db.execute(sql: "UPDATE walk_session SET snowflake_minutes = snowflake_minutes + ? WHERE id = ?", arguments: [minutes, id])
+        }
+    }
+
+    public func snowflakeMinutes() throws -> Int64 {
+        try db.read { try Int64.fetchOne($0, sql: "SELECT COALESCE(SUM(snowflake_minutes), 0) FROM walk_session") ?? 0 }
+    }
+
     /// Metres climbed on freezing walks, all time: what reveals the Hidden Peaks.
     public func coldClimbM() throws -> Double {
         try db.read { try Double.fetchOne($0, sql: "SELECT COALESCE(SUM(cold_climb_m), 0) FROM walk_session") ?? 0 }

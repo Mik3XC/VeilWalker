@@ -1,9 +1,9 @@
 import SwiftUI
 import VeilWalkerCore
 
-/// What Snowflake is, why it helps, and where VeilWalker fits. Hosting isn't in iOS v1 (handoff §8: keeping a proxy
-/// alive in the background through location mode would misuse a background mode, App Store guideline 2.5.4), so this
-/// page teaches and points to the browser Snowflake, which anyone can run today.
+/// What Snowflake is, why it helps, and where VeilWalker fits. On iPhone it hosts only in Wake Mode, on screen:
+/// keeping a proxy alive in the background through location mode would misuse a background mode (App Store guideline
+/// 2.5.4, handoff §8); foreground hosting is fine.
 struct SnowflakeView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.openURL) private var openURL
@@ -16,8 +16,8 @@ struct SnowflakeView: View {
 
             // Status up front, so nobody goes looking for a switch that isn't there.
             VStack(alignment: .leading, spacing: 4) {
-                Text("[-] ANDROID FIRST · NOT ON IPHONE YET").fontWeight(.bold).foregroundStyle(Veil.ice)
-                Text("Hosting comes to the Android app first; it isn't live there yet either. Until then, help from a browser (below).")
+                Text("(*) ON IPHONE: HOSTS IN WAKE MODE ONLY").fontWeight(.bold).foregroundStyle(Veil.ice)
+                Text("Open wake mode, tap \"host a snowflake\", and your phone helps while that screen is on. Shared so far: \(SnowflakeStats.format(app.snowflake.bytesShared)).")
                     .font(Veil.small).foregroundStyle(Veil.dim)
             }
             .veilPanel(outlined: true, outline: Veil.ice.opacity(0.5), padding: 12)
@@ -38,15 +38,15 @@ struct SnowflakeView: View {
                 .font(Veil.body).foregroundStyle(Veil.dim)
 
             SectionHeader(text: "snowflake in veilwalker")
-            Text("Hosting a snowflake while you walk will earn frost on every badge frame: FROST at 10 minutes, then ICE, GLACIER and AURORA at 5,000. Status only, never points, so nobody's helping for the wrong reasons. Data stays capped: a prompt at 50 MB and never more than 500 MB a day.")
+            Text("Hosting a snowflake while you walk earns frost on every badge frame: FROST at 10 minutes, then ICE, GLACIER and AURORA at 5,000. Status only, never points, so nobody's helping for the wrong reasons. Data stays capped: a prompt at 50 MB and never more than 500 MB a day.")
                 .font(Veil.body).foregroundStyle(Veil.dim)
             Text("Frost now: \(app.board.frost.title) · \(app.board.snowflakeMinutes) min hosted")
                 .font(Veil.body).foregroundStyle(app.board.frost == .none ? Veil.muted : Veil.ice)
 
-            SectionHeader(text: "why not on iPhone yet")
-            Text("A snowflake has to stay switched on to pass traffic along. iPhone pauses apps a few seconds after you leave them, and only lets a few kinds of work (music, navigation, calls) keep running. VeilWalker's walks stay awake through GPS, but Apple's rules say that's for location only: using it to keep a proxy running would get the app pulled from the App Store. Hosting only while the app is open on screen is allowed, so that's the likely first step on iPhone.")
+            SectionHeader(text: "why only in wake mode")
+            Text("A snowflake has to stay switched on to pass traffic along. iPhone pauses apps a few seconds after you leave them, and only lets a few kinds of work (music, navigation, calls) keep running. VeilWalker's walks stay awake through GPS, but Apple's rules say that's for location only: using it to keep a proxy running would get the app pulled from the App Store. While an app is open on screen, it may host, so wake mode keeps the screen on for your run and hosts only then.")
                 .font(Veil.body).foregroundStyle(Veil.dim)
-            Text("You can help today from any computer or browser: the Tor Project's own Snowflake runs in a browser tab or extension.")
+            Text("It's the Tor Project's own Snowflake code, forwarding only to the Tor Project's relays. Not at your phone? A browser tab or extension helps too.")
                 .font(Veil.body).foregroundStyle(Veil.dim)
             VeilButton(label: "Run a snowflake in your browser", glyph: "*", filled: true) { openURL(Self.site) }
             Text("snowflake.torproject.org · made by the Tor Project, not by VeilWalker").font(Veil.small).foregroundStyle(Veil.muted)

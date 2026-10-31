@@ -16,3 +16,6 @@ rust/vw-tor/target/
 *.p12
 *.cer
 *.certSigningRequest
+
+# Snowflake framework (~200 MB): rebuild with snowflake/build-xcframework.sh
+VeilWalkerCore/Frameworks/VWFlake.xcframework/

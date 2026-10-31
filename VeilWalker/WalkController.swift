@@ -142,6 +142,12 @@ final class WalkController: NSObject {
         }
     }
 
+    /// A minute of Snowflake hosting while walking: frost for the badge frames, on this walk's record.
+    func creditSnowflakeMinute() {
+        guard isWalking, let walkId else { return }
+        try? store.addWalkSnowflakeMinutes(id: walkId, minutes: 1)
+    }
+
     /// Account deleted: stop everything, including the significant-change wake.
     func shutdown() {
         if tracker != nil { stopSensors() }

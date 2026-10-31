@@ -28,9 +28,13 @@ let package = Package(
         ),
         // Built by ../rust/vw-tor/build-xcframework.sh (iOS device, iOS simulator, macOS).
         .binaryTarget(name: "VWTor", path: "Frameworks/VWTor.xcframework"),
+        // The Tor Project's Snowflake proxy, built by ../snowflake/build-xcframework.sh (gomobile).
+        .binaryTarget(name: "VWFlake", path: "Frameworks/VWFlake.xcframework"),
         .target(
             name: "VeilWalkerTor",
-            dependencies: ["VeilWalkerCore", "VWTor"]
+            dependencies: ["VeilWalkerCore", "VWTor", "VWFlake"],
+            // Go's resolver (inside VWFlake) calls libresolv.
+            linkerSettings: [.linkedLibrary("resolv")]
         ),
         .target(name: "VeilWalkerActivity"),
         .testTarget(

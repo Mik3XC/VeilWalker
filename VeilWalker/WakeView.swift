@@ -1,20 +1,133 @@
 import SwiftUI
 import UIKit
 import VeilWalkerCore
+import VeilWalkerTor
 
-/// Snowflake's one public number: traffic shared. Nothing else is kept: no peers, no addresses, no countries, no
-/// session log, so there's nothing to learn about who was helped. The hosting engine (not built yet on either
-/// platform) adds bytes through `record(_:)`.
+/// Snowflake hosting in Wake Mode. Opt-in (as on Android), and only while Wake Mode is on screen: iPhone allows
+/// foreground work, not a proxy kept alive in the background. Its one public number is traffic shared; nothing else is
+/// kept (no peers, addresses, countries or session log), so there's nothing to learn about who was helped.
+/// Data caps as on Android: a prompt at 50 MB per session (continue to 150 MB), and never more than 500 MB a day.
 @MainActor @Observable
 final class SnowflakeStats {
-    private static let key = "snowflakeBytesShared"
-    private(set) var bytesShared: Int64 = Int64(UserDefaults.standard.integer(forKey: SnowflakeStats.key))
-    /// True once a hosting engine is wired in. Until then the screen says so instead of pretending.
-    let engineAvailable = false
+    static let softCapBytes: Int64 = 50_000_000
+    static let extendedCapBytes: Int64 = 150_000_000
+    static let dailyCapBytes: Int64 = 500_000_000
 
-    func record(_ bytes: Int64) {
+    private static let totalKey = "snowflakeBytesShared"
+    private static let todayKey = "snowflakeBytesToday"
+    private static let dayKey = "snowflakeDay"
+    private static let enabledKey = "snowflakeHostInWake"
+
+    let engineAvailable = true
+    private(set) var bytesShared = Int64(UserDefaults.standard.integer(forKey: SnowflakeStats.totalKey))
+    private(set) var bytesToday: Int64 = 0
+    private(set) var sessionBytes: Int64 = 0
+    private(set) var enabled = UserDefaults.standard.bool(forKey: SnowflakeStats.enabledKey)
+    private(set) var running = false
+    /// The 50 MB prompt is showing; hosting is paused until the user answers.
+    private(set) var askToContinue = false
+    /// Stopped by a cap: "session" (150 MB) or "today" (500 MB).
+    private(set) var cappedBy: String?
+    private(set) var lastError: String?
+
+    private var sessionLimit = SnowflakeStats.softCapBytes
+    private var minuteTicker: Task<Void, Never>?
+    private var onMinute: (@MainActor () -> Void)?
+    private let days = LocalDays()
+
+    init() {
+        rollDay()
+    }
+
+    func setEnabled(_ on: Bool, onMinute: @escaping @MainActor () -> Void) {
+        enabled = on
+        UserDefaults.standard.set(on, forKey: Self.enabledKey)
+        if on { start(onMinute: onMinute) } else { stop() }
+    }
+
+    /// Wake Mode on screen: host if the user opted in and no cap is hit.
+    func start(onMinute: @escaping @MainActor () -> Void) {
+        rollDay()
+        guard enabled, !running, !askToContinue, cappedBy == nil else { return }
+        guard bytesToday < Self.dailyCapBytes else { cappedBy = "today"; return }
+        self.onMinute = onMinute
+        SnowflakeHost.shared.start(capacity: 2) { bytes in
+            Task { @MainActor [weak self] in self?.record(bytes) }
+        }
+        running = true
+        lastError = nil
+        minuteTicker = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(60))
+                guard let self, self.running else { return }
+                if let e = SnowflakeHost.shared.lastError { self.lastError = e; self.stop(); return }
+                self.onMinute?()   // a minute hosted: frost, if a walk is on
+            }
+        }
+    }
+
+    /// Wake Mode left the screen (or the app left the foreground): stop at once.
+    func stop() {
+        minuteTicker?.cancel()
+        minuteTicker = nil
+        if running { SnowflakeHost.shared.stop() }
+        running = false
+    }
+
+    /// Wake Mode closed: the next session starts fresh (caps per session, the daily cap carries over).
+    func endSession() {
+        stop()
+        sessionBytes = 0
+        sessionLimit = Self.softCapBytes
+        askToContinue = false
+        if cappedBy == "session" { cappedBy = nil }
+    }
+
+    func continuePastSoftCap(onMinute: @escaping @MainActor () -> Void) {
+        askToContinue = false
+        sessionLimit = Self.extendedCapBytes
+        start(onMinute: onMinute)
+    }
+
+    func declineSoftCap() {
+        askToContinue = false
+        cappedBy = "session"
+    }
+
+    private func record(_ bytes: Int64) {
+        rollDay()
         bytesShared += bytes
-        UserDefaults.standard.set(Int(bytesShared), forKey: Self.key)
+        bytesToday += bytes
+        sessionBytes += bytes
+        UserDefaults.standard.set(Int(bytesShared), forKey: Self.totalKey)
+        UserDefaults.standard.set(Int(bytesToday), forKey: Self.todayKey)
+        if bytesToday >= Self.dailyCapBytes {
+            stop()
+            cappedBy = "today"
+        } else if sessionBytes >= sessionLimit {
+            stop()
+            if sessionLimit == Self.softCapBytes { askToContinue = true } else { cappedBy = "session" }
+        }
+    }
+
+    private func rollDay() {
+        let today = days.day(Date())
+        if UserDefaults.standard.string(forKey: Self.dayKey) != today {
+            UserDefaults.standard.set(today, forKey: Self.dayKey)
+            UserDefaults.standard.set(0, forKey: Self.todayKey)
+            if cappedBy == "today" { cappedBy = nil }
+        }
+        bytesToday = Int64(UserDefaults.standard.integer(forKey: Self.todayKey))
+    }
+
+    /// The one-line status under the counter.
+    var statusLine: String {
+        if let e = lastError { return "[x] snowflake stopped: \(e.prefix(60))" }
+        if cappedBy == "today" { return "[-] 500 MB shared today: resting until tomorrow" }
+        if cappedBy == "session" { return "[-] session cap reached · see you next run" }
+        if askToContinue { return "[?] 50 MB shared this run" }
+        if running { return "(*) hosting · only traffic shared is kept · stops when you leave" }
+        return "[ ] tap to host a snowflake while this screen is open"
     }
 
     /// 0 B, 512 KB, 41.2 MB, 1.30 GB.
@@ -37,6 +150,9 @@ struct WakeView: View {
     @AppStorage(Look.key) private var look = Look.terminal.rawValue
     @State private var holding = false
     @State private var spin = false
+    @State private var explainHosting = false
+    @Environment(\.scenePhase) private var phase
+    @AppStorage("snowflakeHostExplained") private var explained = false
 
     private var glass: Bool { look == Look.glass.rawValue }
     private var artImage: UIImage? { UIImage(named: glass ? "WakeGlass" : "WakeTerminal") }
@@ -67,11 +183,7 @@ struct WakeView: View {
                         stat(Fmt.fixed(app.todayKm, 2), "km", art: true)
                         stat(SnowflakeStats.format(app.snowflake.bytesShared), "shared", art: true, color: Veil.ice)
                     }
-                    Text(app.snowflake.engineAvailable
-                         ? "* snowflake: only traffic shared is kept. no peers, no addresses, no places"
-                         : "[-] snowflake hosting not built yet · Android first · counter ready")
-                        .font(Veil.label).foregroundStyle(Veil.dim).multilineTextAlignment(.center)
-                        .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                    hostSwitch(art: true)
                 } else {
                 HStack(spacing: 10) {
                     stat(Fmt.grouped(app.todaySteps), "steps today")
@@ -87,11 +199,7 @@ struct WakeView: View {
                     Text(SnowflakeStats.format(app.snowflake.bytesShared))
                         .font(.system(size: 34, weight: .semibold, design: .monospaced)).foregroundStyle(Veil.ice).monospacedDigit()
                     Text("shared through snowflake").font(Veil.small).foregroundStyle(Veil.dim)
-                    Text(app.snowflake.engineAvailable
-                         ? "only this number is kept: no peers, no addresses, no places"
-                         : "[-] hosting engine not built yet · Android first · counter ready")
-                        .font(Veil.label).foregroundStyle(Veil.dim).multilineTextAlignment(.center)
-                        .lineLimit(3).fixedSize(horizontal: false, vertical: true)
+                    hostSwitch(art: false)
                 }
                 .frame(maxWidth: .infinity)
                 .veilPanel(outlined: true, outline: Veil.ice.opacity(0.45), padding: 16)
@@ -123,7 +231,63 @@ struct WakeView: View {
             if app.walks?.status.isIdle ?? false { app.startWalk() }
             withAnimation(.linear(duration: 40).repeatForever(autoreverses: false)) { spin = true }
         }
-        .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
+            app.snowflake.endSession()   // hosting never outlives the screen
+        }
+        .task { app.snowflake.start(onMinute: creditMinute) }
+        // Foreground only: the moment the app isn't on screen, the snowflake stops; it resumes when it's back.
+        .onChange(of: phase) { _, now in
+            if now == .active { app.snowflake.start(onMinute: creditMinute) } else { app.snowflake.stop() }
+        }
+        .alert("Host a snowflake?", isPresented: $explainHosting) {
+            Button("Host") {
+                explained = true
+                app.snowflake.setEnabled(true, onMinute: creditMinute)
+            }
+            Button("Not now", role: .cancel) {}
+        } message: {
+            Text("While this screen is open, your phone relays already-encrypted Tor traffic for people in censored countries. They can see your phone's IP address, as with any snowflake, but not what you do; you can't see what they do either. It uses mobile data (capped at 500 MB a day) and stops the moment you leave this screen. Only the amount shared is kept.")
+        }
+        .alert("50 MB shared this run", isPresented: Binding(get: { app.snowflake.askToContinue }, set: { _ in })) {
+            Button("Keep going to 150 MB") { app.snowflake.continuePastSoftCap(onMinute: creditMinute) }
+            Button("Stop hosting", role: .cancel) { app.snowflake.declineSoftCap() }
+        } message: {
+            Text("Keep helping people reach Tor on this run, up to 150 MB?")
+        }
+    }
+
+    /// The snowflake on/off switch: its status line, tappable. Turning it on the first time explains what it does.
+    private func hostSwitch(art: Bool) -> some View {
+        let s = app.snowflake
+        return Button {
+            Haptics.tap()
+            if s.enabled {
+                s.setEnabled(false, onMinute: creditMinute)
+            } else if explained {
+                s.setEnabled(true, onMinute: creditMinute)
+            } else {
+                explainHosting = true
+            }
+        } label: {
+            Text(s.statusLine)
+                .font(Veil.label)
+                .foregroundStyle(s.running ? Veil.green : Veil.dim)
+                .glow(s.running ? Veil.green : .clear, radius: 5)
+                .multilineTextAlignment(.center)
+                .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(s.enabled ? "Snowflake hosting on. Tap to stop." : "Host a snowflake while this screen is open")
+    }
+
+    /// A minute hosted while walking frosts the badge frames.
+    private func creditMinute() {
+        app.walks?.creditSnowflakeMinute()
+        app.refresh()
     }
 
     /// The walk's elapsed time from the status line ("walk: 7:05 · 812 steps" → "7:05").

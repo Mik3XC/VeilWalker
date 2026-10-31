@@ -373,7 +373,8 @@ final class AppModel {
                                           postcards: route.position.unlocked.count, today: today)
             let earned = AchievementRules.unlocked(AchievementRules.shared, metrics: metrics).map(\.id)
             try store.unlock(earned, at: Int64(Date().timeIntervalSince1970 * 1000))   // keeps first unlock times
-            board = BadgeBoard(all: AchievementRules.shared, unlockedAt: try store.unlocks())
+            board = BadgeBoard(all: AchievementRules.shared, unlockedAt: try store.unlocks(),
+                               snowflakeMinutes: try store.snowflakeMinutes())
         } catch {
             syncNote = "database error · \(error)"
         }

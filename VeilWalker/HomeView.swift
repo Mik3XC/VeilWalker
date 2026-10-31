@@ -102,8 +102,8 @@ struct HomeView: View {
             HStack(spacing: 10) {
                 Button { Haptics.tap(); path.append(.snowflake) } label: {
                     HStack(spacing: 6) {
-                        // [-] = not available yet (Android's "[-] flake soon"); it becomes a (*) switch once hosting ships.
-                        Text("[-] snowflake").foregroundStyle(Veil.ice).glow(Veil.ice, radius: 5)
+                        // Android's markers: (*) hosting, [ ] off. On iPhone it only hosts inside wake mode.
+                        Text(app.snowflake.running ? "(*) snowflake" : "[ ] snowflake").foregroundStyle(Veil.ice).glow(Veil.ice, radius: 5)
                         Text("> learn").foregroundStyle(Veil.violet)
                         Spacer(minLength: 0)
                     }

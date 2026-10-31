@@ -10,6 +10,7 @@ this lists what the iOS build actually does with cryptography and the recommende
 |---|---|---|---|
 | Tor (always on by default) | TLS 1.2/1.3 (AES-GCM, ChaCha20-Poly1305, X25519), Tor circuit crypto (ntor handshake with X25519, AES-128-CTR, SHA-1/SHA-256/SHA3), onion-service keys (Ed25519) | **Confidentiality** of all API traffic and the weather lookup | Arti 0.47 + rustls + ring, compiled into the app (not Apple's OS crypto) |
 | Weather over a Tor exit | TLS to api.weather.gov | Confidentiality | rustls + ring, webpki-roots |
+| Snowflake hosting (Wake Mode, opt-in) | WebRTC DTLS 1.2 (ECDHE, AES-GCM) and TLS to the Tor Project's broker and relays | Confidentiality of relayed (already Tor-encrypted) traffic | The Tor Project's Snowflake + Pion WebRTC (Go), compiled into the app |
 | Tor turned off by the user | HTTPS | Confidentiality | Apple URLSession (OS-provided) |
 | Account | BIP39 seed (PBKDF2-HMAC-SHA512), SLIP-0010 key derivation (HMAC-SHA512), Ed25519 signatures on every request | Authentication | CommonCrypto, CryptoKit (OS-provided) |
 | Ledger | SHA-256 hash chain, Ed25519 server signatures checked on the phone | Integrity, authentication | CryptoKit |
@@ -40,4 +41,5 @@ exemptions. So the honest answer to "does your app use non-exempt encryption" is
 - Encryption purpose: privacy of communications (anonymity network) and authentication.
 - Key lengths: 128- and 256-bit symmetric, X25519 / Ed25519.
 - Distribution: free, App Store, consumer.
-- Source: Arti at gitlab.torproject.org/tpo/core/arti; rustls; ring.
+- Source: Arti at gitlab.torproject.org/tpo/core/arti; rustls; ring; Snowflake at
+  gitlab.torproject.org/tpo/anti-censorship/pluggable-transports/snowflake; Pion WebRTC.
