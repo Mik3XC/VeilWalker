@@ -100,7 +100,8 @@ struct HomeView: View {
             // Snowflake: hosting isn't on iPhone yet; the pane teaches what it is and how to help.
             Button { Haptics.tap(); path.append(.snowflake) } label: {
                 HStack(spacing: 8) {
-                    Text("[*] snowflake").foregroundStyle(Veil.ice).glow(Veil.ice, radius: 5)
+                    // [-] = not available yet (Android's "[-] flake soon"); it becomes a (*) switch once hosting ships.
+                    Text("[-] snowflake").foregroundStyle(Veil.ice).glow(Veil.ice, radius: 5)
                     Text("· help people past the wall").foregroundStyle(Veil.dim).lineLimit(1).minimumScaleFactor(0.7)
                     Spacer(minLength: 0)
                     Text("> learn").foregroundStyle(Veil.violet)
@@ -139,10 +140,10 @@ struct HomeView: View {
                     tile("@", "account") { path.append(.account) }
                 }
             }
-            .background(alignment: .bottomLeading) {
-                // 3XC as a faint signature behind the buttons.
-                ThreeXCArt(size: 24, color: Veil.violet.opacity(0.08))
-                    .offset(x: 2, y: 4)
+            .background(alignment: .topLeading) {
+                // 3XC as a faint signature, half peeking out above the buttons into the empty space.
+                ThreeXCArt(size: 24, color: Veil.violet.opacity(0.1))
+                    .offset(x: 2, y: -96)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }

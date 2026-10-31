@@ -14,6 +14,14 @@ struct SnowflakeView: View {
             Text("Snowflake").font(Veil.headline)
             Text("Breaking walls, one volunteer at a time.").foregroundStyle(Veil.dim)
 
+            // Status up front, so nobody goes looking for a switch that isn't there.
+            VStack(alignment: .leading, spacing: 4) {
+                Text("[-] ANDROID FIRST · NOT ON IPHONE YET").fontWeight(.bold).foregroundStyle(Veil.ice)
+                Text("Hosting comes to the Android app first; it isn't live there yet either. Until then, help from a browser (below).")
+                    .font(Veil.small).foregroundStyle(Veil.dim)
+            }
+            .veilPanel(outlined: true, outline: Veil.ice.opacity(0.5), padding: 12)
+
             WallBreaker()
                 .veilPanel(outlined: true, outline: Veil.green.opacity(0.5), padding: 12)
 
@@ -35,8 +43,10 @@ struct SnowflakeView: View {
             Text("Frost now: \(app.board.frost.title) · \(app.board.snowflakeMinutes) min hosted")
                 .font(Veil.body).foregroundStyle(app.board.frost == .none ? Veil.muted : Veil.ice)
 
-            SectionHeader(text: "on iPhone")
-            Text("iPhone apps can't keep a proxy running in the background, so hosting from VeilWalker isn't here yet. You can help today from any computer or browser: the Tor Project's own Snowflake runs in a browser tab or extension.")
+            SectionHeader(text: "why not on iPhone yet")
+            Text("A snowflake has to stay switched on to pass traffic along. iPhone pauses apps a few seconds after you leave them, and only lets a few kinds of work (music, navigation, calls) keep running. VeilWalker's walks stay awake through GPS, but Apple's rules say that's for location only: using it to keep a proxy running would get the app pulled from the App Store. Hosting only while the app is open on screen is allowed, so that's the likely first step on iPhone.")
+                .font(Veil.body).foregroundStyle(Veil.dim)
+            Text("You can help today from any computer or browser: the Tor Project's own Snowflake runs in a browser tab or extension.")
                 .font(Veil.body).foregroundStyle(Veil.dim)
             VeilButton(label: "Run a snowflake in your browser", glyph: "*", filled: true) { openURL(Self.site) }
             Text("snowflake.torproject.org · made by the Tor Project, not by VeilWalker").font(Veil.small).foregroundStyle(Veil.muted)

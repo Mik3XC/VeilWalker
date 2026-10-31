@@ -23,9 +23,9 @@ public enum TorPhase: Equatable, Sendable {
         switch self {
         case .waking: return "(%) tor waking…"
         case .connecting: return "(%) tor · connecting…"
-        case .checking: return "(%) tor · onion checking…"
+        case .checking: return "(%) tor · checking…"
         case .ok: return "(%) tor · onion ok"
-        case .unreachable: return "(%) tor · onion retrying"
+        case .unreachable: return "(%) tor · retrying"
         case .failed: return "(%) tor · waiting"
         }
     }
