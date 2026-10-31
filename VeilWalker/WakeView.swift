@@ -39,6 +39,7 @@ struct WakeView: View {
     @State private var spin = false
 
     private var glass: Bool { look == Look.glass.rawValue }
+    private var artImage: UIImage? { UIImage(named: glass ? "WakeGlass" : "WakeTerminal") }
 
     var body: some View {
         ZStack {
@@ -57,8 +58,21 @@ struct WakeView: View {
                     Text(app.walks?.line ?? "walk: starting…").font(Veil.small).foregroundStyle(Veil.dim).lineLimit(1)
                 }
                 .frame(maxWidth: .infinity)
-                .veilPanel(outlined: true, outline: Veil.violet.opacity(0.4), padding: 16)
+                .modifier(WakePane(art: artImage != nil, glass: glass, outline: Veil.violet.opacity(0.4), padding: 16))
 
+                if artImage != nil {
+                    // With the art behind, the numbers stay up top in one row and the runner gets the lower half.
+                    HStack(spacing: 8) {
+                        stat(Fmt.grouped(app.todaySteps), "steps", art: true)
+                        stat(Fmt.fixed(app.todayKm, 2), "km", art: true)
+                        stat(SnowflakeStats.format(app.snowflake.bytesShared), "shared", art: true, color: Veil.ice)
+                    }
+                    Text(app.snowflake.engineAvailable
+                         ? "* snowflake: only traffic shared is kept. no peers, no addresses, no places"
+                         : "[-] snowflake hosting not built yet · Android first · counter ready")
+                        .font(Veil.label).foregroundStyle(Veil.dim).multilineTextAlignment(.center)
+                        .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                } else {
                 HStack(spacing: 10) {
                     stat(Fmt.grouped(app.todaySteps), "steps today")
                     stat(Fmt.fixed(app.todayKm, 2), "km today")
@@ -81,6 +95,7 @@ struct WakeView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .veilPanel(outlined: true, outline: Veil.ice.opacity(0.45), padding: 16)
+                }
 
                 Spacer(minLength: 0)
 
@@ -88,7 +103,7 @@ struct WakeView: View {
                 Text(holding ? "keep holding…" : "hold to exit")
                     .font(Veil.bodyLarge).foregroundStyle(holding ? Veil.green : Veil.violet)
                     .frame(maxWidth: .infinity).padding(.vertical, 14)
-                    .veilPanel(outlined: true, outline: Veil.violet.opacity(0.5), padding: 0)
+                    .modifier(WakePane(art: artImage != nil, glass: glass, outline: Veil.violet.opacity(0.5), padding: 0))
                     .contentShape(Rectangle())
                     .onLongPressGesture(minimumDuration: 1, pressing: { holding = $0 }) {
                         Haptics.tap()
@@ -118,20 +133,24 @@ struct WakeView: View {
         return String(part)
     }
 
-    private func stat(_ value: String, _ label: String) -> some View {
+    private func stat(_ value: String, _ label: String, art: Bool = false, color: Color = Veil.text) -> some View {
         VStack(spacing: 2) {
-            Text(value).font(.system(size: 30, weight: .semibold, design: .monospaced)).foregroundStyle(Veil.text)
+            Text(value).font(.system(size: art ? 22 : 30, weight: .semibold, design: .monospaced)).foregroundStyle(color)
                 .monospacedDigit().lineLimit(1).minimumScaleFactor(0.5)
             Text(label).font(Veil.small).foregroundStyle(Veil.dim)
         }
         .frame(maxWidth: .infinity)
-        .veilPanel(outlined: true, padding: 12)
+        .modifier(WakePane(art: art, glass: glass, outline: Veil.muted, padding: art ? 10 : 12))
     }
 
     @ViewBuilder private var backdrop: some View {
-        if let image = UIImage(named: glass ? "WakeGlass" : "WakeTerminal") {
-            Image(uiImage: image).resizable().scaledToFill().ignoresSafeArea()
-                .overlay(Color.black.opacity(0.35).ignoresSafeArea())   // keeps the numbers readable on any art
+        if let image = artImage {
+            // Anchored to the bottom so the runner and the wall stay in view on any screen shape.
+            GeometryReader { g in
+                Image(uiImage: image).resizable().scaledToFill()
+                    .frame(width: g.size.width, height: g.size.height, alignment: .bottom).clipped()
+            }
+            .ignoresSafeArea()
         } else {
             VeilBackdrop()
         }
@@ -147,4 +166,23 @@ enum SnowflakeArt {
         #"  -- / | \ --  "#,
         #"    /  |  \    "#,
     ].joined(separator: "\n")
+}
+
+/// A Wake Mode pane. Over the art it's see-through (dark tint, or glass in the Glass look) so the picture shows;
+/// without art it's the normal panel.
+private struct WakePane: ViewModifier {
+    let art: Bool
+    let glass: Bool
+    let outline: Color
+    let padding: CGFloat
+
+    func body(content: Content) -> some View {
+        if art && !glass {
+            content.padding(padding).frame(maxWidth: .infinity)
+                .background(Color.black.opacity(0.45))
+                .overlay(Rectangle().stroke(outline, lineWidth: 1))
+        } else {
+            content.veilPanel(outlined: true, outline: outline, padding: padding)
+        }
+    }
 }
