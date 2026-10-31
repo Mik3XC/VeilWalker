@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "families": [
+    {
+      "id": "steps", "glyph": ">>", "metric": "lifetime_steps",
+      "tiers": [1000, 10000, 50000, 100000, 250000, 500000, 1000000, 2500000, 5000000, 10000000],
+      "names": ["First Steps", "10K Club", "Fifty Grand", "Six Figures", "Quarter Mil", "Half Mil", "The Million", "Long Haul", "Five Million", "Ten Million"],
+      "desc": "Walk {n} steps, all time"
+    },
+    {
+      "id": "outlaw", "glyph": "$", "metric": "lifetime_steps",
+      "tiers": [10000, 50000, 100000, 250000, 500000, 1000000, 2000000, 3500000, 5000000, 7000000, 9000000, 13000000, 25000000],
+      "names": ["Stowaway", "Footpad", "Cutpurse", "Con Artist", "Art Thief", "Master Forger", "Smuggler", "Rum-Runner", "Moonshiner", "Bootlegger", "Escapist", "Smuggler King", "Kingpin"],
+      "desc": "Outlaw rank: walk {n} steps, all time"
+    },
+    {
+      "id": "best_day", "glyph": "/\\", "metric": "best_day_steps",
+      "tiers": [5000, 10000, 15000, 20000, 30000, 40000],
+      "names": ["Warm Up", "Ten Thousand", "Overclocked", "Twenty", "Thirty Deep", "Forty Below"],
+      "desc": "Walk {n} steps in one day"
+    },
+    {
+      "id": "streak", "glyph": "##", "metric": "streak_days",
+      "tiers": [3, 7, 14, 30, 60, 100, 180, 365],
+      "names": ["Habit", "Full Week", "Fortnight", "Month Solid", "Two Months", "Centurion", "Half Year", "Orbit"],
+      "desc": "Hit 3,000+ steps {n} days in a row"
+    },
+    {
+      "id": "walks", "glyph": "..", "metric": "walk_count",
+      "tiers": [1, 5, 10, 25, 50, 100, 250, 500],
+      "names": ["Boot Up", "Regular", "Ten Walks", "Wanderer", "Fifty Walks", "Hundred Walks", "Road Worn", "Pathfinder"],
+      "desc": "Finish {n} walks"
+    },
+    {
+      "id": "onion", "glyph": "(%)", "metric": "onion_walk_count",
+      "tiers": [1, 5, 10, 25, 50, 100],
+      "names": ["Peeled", "Layered", "Circuit Built", "Hidden Service", "Deep Onion", "Onion Lord"],
+      "desc": "Finish {n} Onion Walks"
+    },
+    {
+      "id": "onion_steps", "glyph": "%%", "metric": "onion_steps",
+      "tiers": [10000, 50000, 100000, 500000, 1000000],
+      "names": ["Three Hops", "Guard Node", "Middle Relay", "Exit Node", "Ghost Network"],
+      "desc": "Walk {n} steps over Tor"
+    },
+    {
+      "id": "snowflake", "glyph": "*", "metric": "snowflake_minutes",
+      "tiers": [10, 60, 300, 1000, 5000],
+      "names": ["First Flake", "Flurry", "Snowfall", "Blizzard", "Bridge Keeper"],
+      "desc": "Host Snowflake for {n} minutes while walking"
+    },
+    {
+      "id": "postcards", "glyph": "[=]", "metric": "route_postcards",
+      "tiers": [1, 3, 6, 9, 12],
+      "names": ["Departed", "Following the River", "Free Soil Ahead", "Last Stations", "North Star I"],
+      "desc": "Collect {n} North Star postcards"
+    },
+    {
+      "id": "longest", "glyph": "->", "metric": "longest_walk_m",
+      "tiers": [1000, 5000, 10000, 21097, 42195],
+      "names": ["One K", "Five K", "Ten K", "Half Marathon", "Marathon"],
+      "desc": "Walk {n} m in a single walk",
+      "format": "raw"
+    },
+    {
+      "id": "dawn", "glyph": "^", "metric": "dawn_walks",
+      "tiers": [1, 10, 50],
+      "names": ["First Light", "Early Riser", "Sunrise Ritual"],
+      "desc": "Start {n} walks between 4 and 7 am"
+    },
+    {
+      "id": "night", "glyph": "~", "metric": "night_walks",
+      "tiers": [1, 10, 50],
+      "names": ["After Hours", "Night Shift", "Nocturnal"],
+      "desc": "Start {n} walks between 10 pm and 4 am"
+    },
+    {
+      "id": "peaks", "glyph": "/^\\", "metric": "cold_climb_m", "secret": true,
+      "tiers": [2228, 3286, 4392, 4884, 4892, 5642, 5895, 6190, 6961, 8849],
+      "names": ["Kosciuszko", "Mount Baker", "Mount Rainier", "Puncak Jaya", "Vinson Massif", "Elbrus", "Kilimanjaro", "Denali", "Aconcagua", "Everest"],
+      "desc": "Climb {n} m on freezing walks (7 cm per step, hills count extra)"
+    },
+    {
+      "id": "crowley", "glyph": ")v(", "metric": "cold_climb_m", "secret": true, "format": "raw",
+      "tiers": [8611], "names": ["The Crowley Award"],
+      "desc": "Summit K2, the Savage Mountain: {n} m of freezing climb"
+    },
+    {
+      "id": "ghost_hour", "glyph": "?!", "metric": "ghost_hour_walks", "secret": true,
+      "tiers": [1], "names": ["Ghost Hour"],
+      "desc": "Start a walk between 3 and 4 am"
+    },
+    {
+      "id": "leet", "glyph": "?!", "metric": "leet_days", "secret": true,
+      "tiers": [1], "names": ["1337"],
+      "desc": "Finish a day on exactly 1,337 steps"
+    },
+    {
+      "id": "palindrome", "glyph": "?!", "metric": "palindrome_days", "secret": true,
+      "tiers": [1], "names": ["Mirror Day"],
+      "desc": "Finish a day on a palindrome step count of 10,000+"
+    }
+  ]
+}

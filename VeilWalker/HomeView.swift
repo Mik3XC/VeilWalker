@@ -1,0 +1,179 @@
+import SwiftUI
+import VeilWalkerCore
+
+enum Screen: Hashable {
+    case journeys, journey(String), peak(String), stats, badges, about, account, social, brag, credits, snowflake
+}
+
+/// Everything on one screen, no scroll: identity, lifetime steps, walk + privacy lines, the live journey,
+/// the next unlock, links. Mirrors HomeScreen.kt. Links for screens that arrive in build step 7 show muted.
+struct HomeView: View {
+    @Environment(AppModel.self) private var app
+    @Binding var path: [Screen]
+    @AppStorage(Look.key) private var look = Look.terminal.rawValue
+    private var glass: Bool { look == Look.glass.rawValue }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 10) {
+                // Tapping the mark switches between the Terminal and Glass looks.
+                Button {
+                    Haptics.tap()
+                    withAnimation(.easeInOut(duration: 0.35)) { look = (Look(rawValue: look) ?? .terminal).next.rawValue }
+                } label: {
+                    LogoMark().frame(width: 32, height: 32).glow(Veil.violet, radius: 6)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("switch look, now \(Look(rawValue: look)?.title ?? "terminal")")
+                Text("VeilWalker").font(Veil.titleLarge)
+                Spacer()
+                // Car-dashboard temperature: the snowflake means freezing, and freezing walks climb the Hidden Peaks.
+                if !app.weather.enabled {
+                    Button { app.weather.setEnabled(true) } label: {
+                        Text("[ ] weather").font(Veil.body).foregroundStyle(Veil.muted)
+                    }
+                    .buttonStyle(.plain)
+                } else if let w = app.weather.weather {
+                    Text(w.label).font(Veil.titleMedium).foregroundStyle(w.freezing ? Veil.ice : Veil.dim)
+                } else {
+                    Text("--°F").font(Veil.titleMedium).foregroundStyle(Veil.muted)
+                }
+            }
+            Rectangle().fill(Veil.violet).frame(height: 1).glow(Veil.violet, radius: 4)
+
+            HStack(spacing: 8) {
+                // The picture in its own pane; tap to change it in @ account.
+                Button { Haptics.tap(); path.append(.account) } label: {
+                    AvatarArt(index: app.avatar, size: 10)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)   // centred in its pane
+                        .veilPanel(outlined: true, padding: 10)
+                        .frame(width: 92)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("profile picture, change in account")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text((app.clan.map { "[\($0)] " } ?? "") + (app.handle ?? "no handle yet"))
+                        .font(Veil.titleMedium).fontWeight(.bold)
+                    Text(Fmt.grouped(app.lifetimeSteps))
+                        .font(Veil.headline.weight(.semibold)).foregroundStyle(Veil.violet)
+                        .glow(Veil.violet, radius: 10)
+                        .contentTransition(.numericText(value: Double(app.lifetimeSteps)))
+                        .animation(.snappy, value: app.lifetimeSteps)
+                        .accessibilityIdentifier("lifetime-steps")
+                    Text("lifetime steps · \(app.points) \(app.points == 1 ? "pt" : "pts") · \(Fmt.fixed(app.todayKm, 1)) km today")
+                        .font(Veil.small).foregroundStyle(Veil.dim)
+                        .lineLimit(1).minimumScaleFactor(0.8)
+                }
+                .frame(maxHeight: .infinity)
+                .veilPanel(outlined: true, padding: 10)
+            }
+            .fixedSize(horizontal: false, vertical: true)
+
+            Button { app.startWalk() } label: {
+                Text(app.walks?.line ?? WalkStatus.idle.line(nowMs: 0))
+                    .font(Veil.body)
+                    .foregroundStyle(app.walks?.status.isIdle ?? true ? Veil.dim : Veil.green)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)   // a tap during a walk does nothing (startNow ignores it), so the green stays
+            .accessibilityIdentifier("walk-status")
+            .veilPanel(padding: 10)
+            HStack(spacing: 14) {
+                Button { Haptics.tap(); app.toggleTor() } label: {
+                    Text(app.tor.line).font(Veil.body).foregroundStyle(app.tor.enabled ? Veil.green : Veil.muted)
+                        .glow(app.tor.phase == .ok && app.tor.enabled ? Veil.green : .clear, radius: 6)
+                }
+                .buttonStyle(.plain)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .accessibilityIdentifier("tor-status")
+                Spacer(minLength: 0)
+            }
+            .veilPanel(padding: 10)
+
+            // Snowflake: hosting isn't on iPhone yet; the pane teaches what it is and how to help.
+            Button { Haptics.tap(); path.append(.snowflake) } label: {
+                HStack(spacing: 8) {
+                    Text("[*] snowflake").foregroundStyle(Veil.ice).glow(Veil.ice, radius: 5)
+                    Text("· help people past the wall").foregroundStyle(Veil.dim).lineLimit(1).minimumScaleFactor(0.7)
+                    Spacer(minLength: 0)
+                    Text("> learn").foregroundStyle(Veil.violet)
+                }
+                .font(Veil.body)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .veilPanel(outlined: true, outline: Veil.ice.opacity(0.35), padding: 10)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Snowflake: help people past censorship. Learn more.")
+
+            RouteCardView(progress: app.route, compact: true) { path.append(.journeys) }
+
+            if let next = app.content.locked.first {
+                Button { path.append(.journeys) } label: {
+                    Text("[#] next: \(next.title.uppercased()) · \(next.unlock)")
+                        .font(Veil.small).foregroundStyle(Veil.muted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
+            }
+
+            Spacer(minLength: 0)
+
+            // Six destinations as a 3 × 2 grid of buttons, down where thumbs reach.
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    tile("=", "journeys") { path.append(.journeys) }
+                    tile("&", "social") { path.append(.social) }
+                    tile("~", "stats") { path.append(.stats) }
+                }
+                HStack(spacing: 8) {
+                    tile("+", "badges \(app.board.unlockedCount)/\(app.board.all.count)") { path.append(.badges) }
+                    tile("^", "brag") { path.append(.brag) }
+                    tile("@", "account") { path.append(.account) }
+                }
+            }
+            .background(alignment: .bottomLeading) {
+                // 3XC as a faint signature behind the buttons.
+                ThreeXCArt(size: 24, color: Veil.violet.opacity(0.08))
+                    .offset(x: 2, y: 4)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+
+            // The easter egg: tiny links most people only find by accident.
+            HStack(spacing: 6) {
+                Spacer()
+                Button { Haptics.tap(); path.append(.about) } label: { Text("about").padding(.vertical, 2) }
+                Text("·")
+                Button { Haptics.tap(); path.append(.credits) } label: { Text("credits").padding(.vertical, 2) }
+            }
+            .buttonStyle(.plain)
+            .font(Veil.label)
+            .foregroundStyle(Veil.muted)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .foregroundStyle(Veil.text)
+        .font(Veil.bodyLarge)
+        .background(VeilBackdrop())
+        .dynamicTypeSize(...DynamicTypeSize.large)   // one screen, no scroll
+        .toolbar(.hidden, for: .navigationBar)
+    }
+
+    /// One home destination: a glowing glyph over its name, in a pane (outlined in Terminal, glass in Glass).
+    private func tile(_ glyph: String, _ name: String, action: @escaping () -> Void) -> some View {
+        Button { Haptics.tap(); action() } label: {
+            VStack(spacing: 2) {
+                Text(glyph).font(Veil.titleLarge.weight(.semibold)).foregroundStyle(Veil.violet).glow(Veil.violet, radius: 6)
+                Text(name).font(Veil.small).foregroundStyle(Veil.text).lineLimit(1).minimumScaleFactor(0.7)
+            }
+            .frame(maxWidth: .infinity)
+            .veilPanel(outlined: true, outline: Veil.violet.opacity(0.45), padding: 8)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(name)
+    }
+}

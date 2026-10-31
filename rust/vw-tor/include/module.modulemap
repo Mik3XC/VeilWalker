@@ -1,0 +1,4 @@
+module VWTor {
+    header "vw_tor.h"
+    export *
+}
