@@ -11,6 +11,7 @@ struct HomeView: View {
     @Environment(AppModel.self) private var app
     @Binding var path: [Screen]
     @AppStorage(Look.key) private var look = Look.terminal.rawValue
+    @State private var wake = false
     private var glass: Bool { look == Look.glass.rawValue }
 
     var body: some View {
@@ -97,22 +98,33 @@ struct HomeView: View {
             .fixedSize(horizontal: false, vertical: true)
             .veilPanel(outlined: true, padding: 10)
 
-            // Snowflake: hosting isn't on iPhone yet; the pane teaches what it is and how to help.
-            Button { Haptics.tap(); path.append(.snowflake) } label: {
-                HStack(spacing: 8) {
-                    // [-] = not available yet (Android's "[-] flake soon"); it becomes a (*) switch once hosting ships.
-                    Text("[-] snowflake").foregroundStyle(Veil.ice).glow(Veil.ice, radius: 5)
-                    Text("· help people past the wall").foregroundStyle(Veil.dim).lineLimit(1).minimumScaleFactor(0.7)
-                    Spacer(minLength: 0)
-                    Text("> learn").foregroundStyle(Veil.violet)
+            // Snowflake and Wake Mode share a bar: learn what it is, or go always-on for a run.
+            HStack(spacing: 10) {
+                Button { Haptics.tap(); path.append(.snowflake) } label: {
+                    HStack(spacing: 6) {
+                        // [-] = not available yet (Android's "[-] flake soon"); it becomes a (*) switch once hosting ships.
+                        Text("[-] snowflake").foregroundStyle(Veil.ice).glow(Veil.ice, radius: 5)
+                        Text("> learn").foregroundStyle(Veil.violet)
+                        Spacer(minLength: 0)
+                    }
+                    .contentShape(Rectangle())
                 }
-                .font(Veil.body)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .veilPanel(outlined: true, outline: Veil.ice.opacity(0.35), padding: 10)
-                .contentShape(Rectangle())
+                .buttonStyle(.plain)
+                .accessibilityLabel("Snowflake: help people past censorship. Learn more.")
+
+                Rectangle().fill(Veil.ice.opacity(0.35)).frame(width: 1).padding(.vertical, 2)
+
+                Button { Haptics.tap(); wake = true } label: {
+                    Text("(o) wake mode").foregroundStyle(Veil.green).glow(Veil.green, radius: 5).contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Wake mode: screen stays on for runs")
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Snowflake: help people past censorship. Learn more.")
+            .font(Veil.body)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+            .fixedSize(horizontal: false, vertical: true)
+            .veilPanel(outlined: true, outline: Veil.ice.opacity(0.35), padding: 10)
 
             RouteCardView(progress: app.route, compact: true) { path.append(.journeys) }
 
@@ -166,6 +178,7 @@ struct HomeView: View {
         .background(VeilBackdrop())
         .dynamicTypeSize(...DynamicTypeSize.large)   // one screen, no scroll
         .toolbar(.hidden, for: .navigationBar)
+        .fullScreenCover(isPresented: $wake) { WakeView() }   // full screen: no edge swipe can close it mid-run
     }
 
     /// One home destination: a glowing glyph over its name, in a pane (outlined in Terminal, glass in Glass).

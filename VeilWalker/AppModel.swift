@@ -11,6 +11,8 @@ import VeilWalkerTor
 final class AppModel {
     let tor = TorController()
     let weather: WeatherController
+    /// Snowflake's single public metric: traffic shared.
+    let snowflake = SnowflakeStats()
     let content = ContentLibrary.shared
 
     /// Nothing runs (no identity, no sensors, no network) until the consent screen is accepted.
