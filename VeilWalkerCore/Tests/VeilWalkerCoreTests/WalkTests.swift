@@ -130,7 +130,7 @@ final class WalkTests: XCTestCase {
     }
 
     func testWalkLines() {
-        XCTAssertEqual(WalkStatus.idle.line(nowMs: 0), "walk: auto · 27 s of steps starts it")
+        XCTAssertEqual(WalkStatus.idle.line(nowMs: 0), "walk: auto · 27 s of steps needed")
         XCTAssertEqual(WalkStatus.confirming(walkingForMs: 12_400).line(nowMs: 0), "walk: detecting… 12/27 s")
         XCTAssertEqual(WalkStatus.walking(mode: .onion, startedMs: 0, steps: 812, gps: false).line(nowMs: 425_000),
                        "walk: 7:05 · 812 steps · no gps")

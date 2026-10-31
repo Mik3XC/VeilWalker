@@ -39,7 +39,7 @@ public enum WalkStatus: Equatable, Sendable {
     public func line(nowMs: Int64) -> String {
         switch self {
         case .idle:
-            return "walk: auto · 27 s of steps starts it"
+            return "walk: auto · 27 s of steps needed"
         case .confirming(let ms):
             return "walk: detecting… \(ms / 1000)/\(WalkRules.confirmMs / 1000) s"
         case .walking(_, let started, let steps, let gps):

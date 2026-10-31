@@ -69,28 +69,33 @@ struct HomeView: View {
             }
             .fixedSize(horizontal: false, vertical: true)
 
-            Button { app.startWalk() } label: {
-                Text(app.walks?.line ?? WalkStatus.idle.line(nowMs: 0))
-                    .font(Veil.body)
-                    .foregroundStyle(app.walks?.status.isIdle ?? true ? Veil.dim : Veil.green)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)   // a tap during a walk does nothing (startNow ignores it), so the green stays
-            .accessibilityIdentifier("walk-status")
-            .veilPanel(padding: 10)
-            HStack(spacing: 14) {
+            // Walk and Tor share one bar, two cells: tap the walk cell to start a walk, the Tor cell to switch Tor.
+            HStack(spacing: 10) {
+                Button { Haptics.tap(); app.startWalk() } label: {
+                    Text(app.walks?.line ?? WalkStatus.idle.line(nowMs: 0))
+                        .foregroundStyle(app.walks?.status.isIdle ?? true ? Veil.dim : Veil.green)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)   // a tap during a walk does nothing (startNow ignores it), so the green stays
+                .accessibilityIdentifier("walk-status")
+
+                Rectangle().fill(Veil.violet.opacity(0.4)).frame(width: 1).padding(.vertical, 2)
+
                 Button { Haptics.tap(); app.toggleTor() } label: {
-                    Text(app.tor.line).font(Veil.body).foregroundStyle(app.tor.enabled ? Veil.green : Veil.muted)
+                    Text(app.tor.line).foregroundStyle(app.tor.enabled ? Veil.green : Veil.muted)
                         .glow(app.tor.phase == .ok && app.tor.enabled ? Veil.green : .clear, radius: 6)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .lineLimit(1)
-                .minimumScaleFactor(0.75)
+                .layoutPriority(1)   // the Tor state is short and always shown whole; the walk text gives way
                 .accessibilityIdentifier("tor-status")
-                Spacer(minLength: 0)
             }
-            .veilPanel(padding: 10)
+            .font(Veil.body)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .fixedSize(horizontal: false, vertical: true)
+            .veilPanel(outlined: true, padding: 10)
 
             // Snowflake: hosting isn't on iPhone yet; the pane teaches what it is and how to help.
             Button { Haptics.tap(); path.append(.snowflake) } label: {

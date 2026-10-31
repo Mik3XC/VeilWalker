@@ -16,16 +16,17 @@ public enum TorPhase: Equatable, Sendable {
     /// Arti itself failed to start.
     case failed
 
-    /// `(%) tor on · onion ok` when on, `[x] tor off` when off. Same words as HomeScreen.kt's torLine().
+    /// `(%) tor · onion ok` when on, `[x] tor off` when off. Android's torLine() says "tor on ·"; iOS drops "on" so the
+    /// line fits beside the walk status.
     public func line(enabled: Bool) -> String {
         guard enabled else { return "[x] tor off" }
         switch self {
         case .waking: return "(%) tor waking…"
-        case .connecting: return "(%) tor on · connecting…"
-        case .checking: return "(%) tor on · onion checking…"
-        case .ok: return "(%) tor on · onion ok"
-        case .unreachable: return "(%) tor on · onion retrying"
-        case .failed: return "(%) tor on · waiting"
+        case .connecting: return "(%) tor · connecting…"
+        case .checking: return "(%) tor · onion checking…"
+        case .ok: return "(%) tor · onion ok"
+        case .unreachable: return "(%) tor · onion retrying"
+        case .failed: return "(%) tor · waiting"
         }
     }
 }
