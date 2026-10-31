@@ -285,7 +285,10 @@ final class WalkController: NSObject {
         lastSource = source
         updateActivity()
         windowStartMs = now
-        try? store.updateWalk(id: walkId, steps: walkSteps, distanceM: gps.totalDistanceM,
+        // GPS drift indoors, or a ride, can add distance no feet covered. Nobody covers more than 2 m a step, even
+        // sprinting, so cap it there; otherwise distance badges unlock for nothing (2 km for 132 steps, 31 Oct 2026).
+        let distanceM = min(gps.totalDistanceM, Double(walkSteps) * Self.maxMetresPerStep)
+        try? store.updateWalk(id: walkId, steps: walkSteps, distanceM: distanceM,
                               verdict: verdictCount == 0 ? 1 : Float(verdictSum / Double(verdictCount)), torUsed: torUsed)
     }
 
@@ -449,6 +452,8 @@ final class WalkController: NSObject {
     }
 
     // MARK: Time
+
+    static let maxMetresPerStep = 2.0
 
     static func now() -> Int64 { Int64(Date().timeIntervalSince1970 * 1000) }
     static func date(_ ms: Int64) -> Date { Date(timeIntervalSince1970: Double(ms) / 1000) }

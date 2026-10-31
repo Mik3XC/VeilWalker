@@ -270,15 +270,20 @@ struct WakeView: View {
                 explainHosting = true
             }
         } label: {
-            Text(s.statusLine)
-                .font(Veil.label)
-                .foregroundStyle(s.running ? Veil.green : Veil.dim)
-                .glow(s.running ? Veil.green : .clear, radius: 5)
-                .multilineTextAlignment(.center)
-                .lineLimit(2).fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .contentShape(Rectangle())
+            // A real button: the first version was a thin line of text that was easy to miss.
+            VStack(spacing: 4) {
+                Text(s.enabled ? (s.running ? "(*) HOSTING A SNOWFLAKE" : "(*) HOSTING PAUSED") : "[ ] HOST A SNOWFLAKE")
+                    .font(Veil.bodyLarge.weight(.bold)).tracking(1)
+                    .foregroundStyle(s.running ? Veil.green : Veil.ice)
+                    .glow(s.running ? Veil.green : Veil.ice, radius: 6)
+                Text(s.enabled ? s.statusLine : "help people past censorship while this screen is on")
+                    .font(Veil.label).foregroundStyle(Veil.dim)
+                    .multilineTextAlignment(.center).lineLimit(2).fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .modifier(WakePane(art: art, glass: glass, outline: (s.running ? Veil.green : Veil.ice).opacity(0.6), padding: 0))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(s.enabled ? "Snowflake hosting on. Tap to stop." : "Host a snowflake while this screen is open")
