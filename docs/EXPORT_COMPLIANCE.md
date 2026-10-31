@@ -1,8 +1,8 @@
 # Encryption export compliance (App Store)
 
-**Status: needs the owner's decision.** Not legal advice. This lists what the iOS build actually does with
-cryptography, and the path I'd recommend, so you (or export counsel) can confirm it quickly. Nothing has been
-declared in App Store Connect, and `ITSAppUsesNonExemptEncryption` is **not** set in Info.plist yet.
+**Status:** the owner approved step 1 on 31 Oct 2026: `ITSAppUsesNonExemptEncryption = YES` is in Info.plist.
+Steps 2–5 (App Store Connect answers, the BIS/NSA report, France, counsel review) are still to do. Not legal advice:
+this lists what the iOS build actually does with cryptography and the recommended path.
 
 ## What the app does with cryptography
 
@@ -25,7 +25,7 @@ exemptions. So the honest answer to "does your app use non-exempt encryption" is
 
 ## Recommended path
 
-1. Set `ITSAppUsesNonExemptEncryption = YES` in Info.plist (one line; I'll add it on your OK).
+1. ~~Set `ITSAppUsesNonExemptEncryption = YES` in Info.plist.~~ Done.
 2. In App Store Connect, answer that the app uses **standard** encryption algorithms, not proprietary ones, in addition
    to Apple's. That classifies it as mass-market software (ECCN **5D992.c**, License Exception ENC §740.17(b)(1)).
 3. File the **annual self-classification report** with BIS and the NSA ENC Encryption Request Coordinator. It's a

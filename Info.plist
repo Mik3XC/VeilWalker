@@ -4,6 +4,10 @@
 <dict>
 	<!-- Near-black launch screen, so the app doesn't flash white before the terminal UI. Other keys are generated
 	     from INFOPLIST_KEY_* build settings. -->
+	<!-- Tor encrypts traffic with its own (non-Apple) code, so the app uses non-exempt, standard encryption:
+	     mass market, ECCN 5D992.c, License Exception ENC. See docs/EXPORT_COMPLIANCE.md. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<true/>
 	<!-- Live walks keep GPS (and so the app, CMPedometer and Tor) running with the screen off. -->
 	<key>UIBackgroundModes</key>
 	<array>
