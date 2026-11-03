@@ -41,7 +41,7 @@ With Tor on (the default), our server can't see your IP address. With Tor off, t
 
 ## Snowflake (optional)
 
-If you turn on Snowflake hosting, your phone relays encrypted traffic for people reaching the Tor network from censored countries, only during walks and within data caps you control. Nothing about what is relayed is visible to you or to us. Hosting earns status badges only, never points or money.
+If you turn on Snowflake hosting, your phone runs the Tor Project's Snowflake proxy and relays already-encrypted traffic for people reaching the Tor network from censored countries. On Android it runs only during your walks (including while Wake Mode is open); on iPhone, only while Wake Mode is on screen. It always stays within data caps: a prompt at 50 MB, and never more than 500 MB a day. As with any snowflake, the Tor Project's broker and the people you help can see your phone's IP address; they can't see what you do, and you can't see what they do. VeilWalker keeps only the total amount of traffic shared, on your phone: no addresses, countries or session logs. Hosting earns status badges only, never points or money.
 
 ## Points
 

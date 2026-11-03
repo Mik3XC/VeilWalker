@@ -16,6 +16,31 @@
 - [x] Store settings: Health & Fitness; contact premiselayer@gmail.com; website = Google Site
 - [x] Production countries: United States (+7 territories)
 
+## 0.4.0 (versionCode 4) release, prepared 2026-11-03
+
+Built from branch `android-0.4.0`; bundle at `dist/VeilWalker-0.4.0.aab` (32 MB, upload key CN=3XCypher; each phone
+downloads only its own CPU type). 64-bit native libraries checked for 16 KB pages. 0.3.0 is live in production.
+
+- [ ] **Snowflake hosting walk** on a real phone (15–30 min, Wake Mode → Host): shared counter rises once the broker
+      matches a client, frost minutes accrue, `adb logcat | grep -i country` is empty
+- [ ] **Privacy page** (Google Site, Snowflake section): replace the paragraph with the new text in
+      `docs/legal/privacy-policy.md` (Wake Mode, IP visible to the broker and the people helped, only a byte total kept)
+- [ ] Upload `dist/VeilWalker-0.4.0.aab` to a new production release (owner; over the 10 MB browser limit)
+- [ ] Foreground services: no new types. specialUse (Snowflake during walks) now really runs; the existing description
+      and video still apply. If Play asks again, open the form **from the release** (…?releaseId=…&trackId=…)
+- [ ] Data safety: no change (Snowflake relays others' encrypted traffic; only a byte total is kept on the phone)
+- [ ] Debug symbols warning: stays. Arti and the Go library ship stripped (unstripped Go is ~30 MB more a CPU type);
+      not a review blocker
+- [ ] Release notes (en-US):
+
+      New look: a home screen built around big tiles, plus a Glass look (tap the logo).
+      Runners Wake Mode keeps the screen on for arm-band runs.
+      Snowflake is live: host a Tor Snowflake on your walks to help people past censorship and frost your badges.
+      Walk distance can no longer run ahead of your steps.
+
+- [ ] **Staged rollout 20%**, watch Android vitals (crashes/ANRs; the Go runtime is new native code) for 48 h, then 100%
+- [ ] **Send for review: owner only**
+
 ## Remaining
 - [ ] **Foreground service permissions** (app-content/foreground-services): list was still empty after upload (Google
       processing the bundle). When it appears, declare and describe:
