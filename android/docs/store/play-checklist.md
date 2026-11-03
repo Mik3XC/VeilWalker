@@ -23,7 +23,7 @@ downloads only its own CPU type). 64-bit native libraries checked for 16 KB page
 
 - [ ] **Snowflake hosting walk** on a real phone (15–30 min, Wake Mode → Host): shared counter rises once the broker
       matches a client, frost minutes accrue, `adb logcat | grep -i country` is empty
-- [ ] **Privacy page** (Google Site, Snowflake section): replace the paragraph with the new text in
+- [x] **Privacy page** (Google Site, Snowflake section), published 2026-11-03: replaced the paragraph with the new text in
       `docs/legal/privacy-policy.md` (Wake Mode, IP visible to the broker and the people helped, only a byte total kept)
 - [ ] Upload `dist/VeilWalker-0.4.0.aab` to a new production release (owner; over the 10 MB browser limit)
 - [ ] Foreground services: no new types. specialUse (Snowflake during walks) now really runs; the existing description
