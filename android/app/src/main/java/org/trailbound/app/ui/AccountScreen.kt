@@ -100,7 +100,7 @@ fun AccountScreen(onBack: () -> Unit, vm: AccountViewModel = hiltViewModel()) {
         val switchLook = LocalSwitchLook.current
         VeilButton("Look: ${look.title} (tap to switch)", switchLook, glyph = "~")
         Text(
-            "// terminal is the classic flat look. glass is frosted panels over a drifting ASCII aurora. Tap the logo on the home screen to switch too.",
+            "// light is the easy-reading default. dark is the classic terminal. dark glass is frosted panels over a drifting ASCII aurora. Tap the logo on the home screen to cycle them.",
             color = MaterialTheme.colorScheme.outline, style = MaterialTheme.typography.bodySmall,
         )
 

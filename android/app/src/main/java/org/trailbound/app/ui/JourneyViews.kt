@@ -99,7 +99,7 @@ fun OutlawCardView(j: Journey, lifetime: Long, onOpen: () -> Unit = {}) {
 @Composable
 fun PeakCardView(p: Peak, climbedM: Double, isNext: Boolean, onOpen: () -> Unit = {}) {
     val got = climbedM >= p.heightM
-    val ice = androidx.compose.ui.graphics.Color(0xFF8FD3FF)
+    val ice = VeilColors.ice
     val violet = MaterialTheme.colorScheme.primary
     val muted = MaterialTheme.colorScheme.outline
     val dim = MaterialTheme.colorScheme.onSurfaceVariant
