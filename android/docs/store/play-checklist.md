@@ -33,7 +33,7 @@ downloads only its own CPU type). 64-bit native libraries checked for 16 KB page
       not a review blocker
 - [ ] Release notes (en-US):
 
-      New look: a home screen built around big tiles, plus a Glass look (tap the logo).
+      New look: a bright, easy-to-read Light mode, plus Dark and Dark glass (tap the logo to cycle).
       Runners Wake Mode keeps the screen on for arm-band runs.
       Snowflake is live: host a Tor Snowflake on your walks to help people past censorship and frost your badges.
       Walk distance can no longer run ahead of your steps.

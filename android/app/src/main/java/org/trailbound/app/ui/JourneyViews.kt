@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,7 +46,7 @@ fun LockedJourneyCard(j: Journey, onOpen: () -> Unit = {}) {
     val muted = MaterialTheme.colorScheme.outline
     val dim = MaterialTheme.colorScheme.onSurfaceVariant
     Column(
-        Modifier.fillMaxWidth().border(1.dp, muted, RectangleShape).veilClick(onClick = onOpen).padding(16.dp),
+        Modifier.veilPanel(outlined = true, padding = 0.dp).veilClick(onClick = onOpen).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Row {
@@ -73,7 +74,7 @@ fun OutlawCardView(j: Journey, lifetime: Long, onOpen: () -> Unit = {}) {
     val muted = MaterialTheme.colorScheme.outline
     val dim = MaterialTheme.colorScheme.onSurfaceVariant
     Column(
-        Modifier.fillMaxWidth().border(if (c.rarity >= Rarity.LEGENDARY) 2.dp else 1.dp, if (got) green else if (c.rarity == Rarity.BOSS) violet else muted, RectangleShape)
+        Modifier.veilPanel(outlined = true, outline = if (got) green else if (c.rarity == Rarity.BOSS) violet else Color.Unspecified, lineWidth = if (c.rarity >= Rarity.LEGENDARY) 2.dp else 1.dp, padding = 0.dp)
             .veilClick(onClick = onOpen).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
@@ -104,7 +105,7 @@ fun PeakCardView(p: Peak, climbedM: Double, isNext: Boolean, onOpen: () -> Unit 
     val muted = MaterialTheme.colorScheme.outline
     val dim = MaterialTheme.colorScheme.onSurfaceVariant
     Column(
-        Modifier.fillMaxWidth().border(if (p.demon && got) 2.dp else 1.dp, if (got) (if (p.demon) violet else ice) else muted, RectangleShape)
+        Modifier.veilPanel(outlined = true, outline = if (got) (if (p.demon) violet else ice) else Color.Unspecified, lineWidth = if (p.demon && got) 2.dp else 1.dp, padding = 0.dp)
             .veilClick(enabled = got, onClick = onOpen).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
