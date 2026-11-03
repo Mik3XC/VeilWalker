@@ -16,6 +16,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
@@ -34,15 +35,12 @@ fun RouteCard(p: RouteProgress, compact: Boolean = false, onOpen: () -> Unit = {
     val walked = MaterialTheme.colorScheme.primary
     val marker = MaterialTheme.colorScheme.secondary
 
-    Card(
-        Modifier.fillMaxWidth().border(1.dp, line, RectangleShape),
-        shape = RectangleShape,
-    ) {
+    Column(Modifier.veilPanel(outlined = true, outline = line, padding = 0.dp)) {
         Column(Modifier.padding(if (compact) 12.dp else 16.dp), verticalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 8.dp)) {
             Text(p.route.title, style = if (compact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge)
-            Text(p.route.subtitle, style = MaterialTheme.typography.bodySmall)
+            Text(p.route.subtitle, style = MaterialTheme.typography.bodySmall, maxLines = if (compact) 1 else Int.MAX_VALUE, overflow = TextOverflow.Ellipsis)
 
-            Canvas(Modifier.fillMaxWidth().height(if (compact) 130.dp else 180.dp)) {
+            Canvas(Modifier.fillMaxWidth().height(if (compact) 96.dp else 180.dp)) {
                 val pts = p.route.milestones.map { it.point }
                 val minLat = pts.minOf { it.lat }; val maxLat = pts.maxOf { it.lat }
                 val minLng = pts.minOf { it.lng }; val maxLng = pts.maxOf { it.lng }
@@ -67,10 +65,13 @@ fun RouteCard(p: RouteProgress, compact: Boolean = false, onOpen: () -> Unit = {
             }
 
             Text(asciiBar(pos.travelledM / p.route.lengthM), color = MaterialTheme.colorScheme.primary)
-            Text("%.1f / %.0f km · stride %.2f m".format(pos.travelledM / 1000, p.route.lengthM / 1000, p.strideM), style = MaterialTheme.typography.bodySmall)
-            pos.next?.let { Text("next: ${it.name} in %.1f km".format((pos.toNextM ?: 0.0) / 1000), style = MaterialTheme.typography.bodySmall) }
-                ?: Text("Chapter complete.")
             if (compact) {
+                // One line of stats on the home screen, so the whole home fits without scrolling.
+                Text(
+                    "%.1f / %.0f km".format(pos.travelledM / 1000, p.route.lengthM / 1000) +
+                        (pos.next?.let { " · next: ${it.name} in %.1f km".format((pos.toNextM ?: 0.0) / 1000) } ?: " · chapter complete"),
+                    style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                )
                 Text(
                     "> postcards ${pos.unlocked.size}/${p.route.milestones.size}",
                     color = MaterialTheme.colorScheme.primary,
@@ -79,6 +80,9 @@ fun RouteCard(p: RouteProgress, compact: Boolean = false, onOpen: () -> Unit = {
                 )
                 return@Column
             }
+            Text("%.1f / %.0f km · stride %.2f m".format(pos.travelledM / 1000, p.route.lengthM / 1000, p.strideM), style = MaterialTheme.typography.bodySmall)
+            pos.next?.let { Text("next: ${it.name} in %.1f km".format((pos.toNextM ?: 0.0) / 1000), style = MaterialTheme.typography.bodySmall) }
+                ?: Text("Chapter complete.")
 
             Text("Postcards ${pos.unlocked.size}/${p.route.milestones.size}", style = MaterialTheme.typography.titleSmall)
             pos.unlocked.forEach { m ->
