@@ -1,0 +1,9 @@
+# Onion service for the VeilWalker API. HiddenServiceDir must be on a Railway volume, and BACK UP its keys:
+# losing them changes the .onion address baked into the app.
+# Drop root after startup; the API keeps running separately.
+User debian-tor
+DataDirectory /data/tor
+HiddenServiceDir /data/tor/hs
+HiddenServicePort 80 127.0.0.1:8081
+SocksPort 0
+Log notice stdout

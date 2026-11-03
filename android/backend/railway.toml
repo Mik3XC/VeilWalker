@@ -1,0 +1,16 @@
+# Railway target: project "agile-radiance" → service "feisty-presence" → environment "production".
+# Link once from backend/:  railway link --project agile-radiance --service feisty-presence --environment production
+# Deploy:                   railway up
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+restartPolicyType = "ON_FAILURE"
+
+# Also in the Railway dashboard:
+#  - add a Postgres service (sets DATABASE_URL)
+#  - add a volume mounted at /data (onion service keys live here)
+#  - set SERVER_SIGNING_KEY_HEX (32 random bytes, hex). Its public key gets pinned in the app.

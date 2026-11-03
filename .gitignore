@@ -1,21 +1,22 @@
-# Build output (everything builds into .build/)
-.build/
-DerivedData/
-*.xcuserstate
-xcuserdata/
+# VeilWalker monorepo: android/ (app, core, backend, rust) and ios/ (iPhone app).
+# Each side keeps its own .gitignore too (android/.gitignore, ios/.gitignore).
+
 .DS_Store
 
-# Tor framework binaries (~55 MB): rebuild with rust/vw-tor/build-xcframework.sh
-VeilWalkerCore/Frameworks/VWTor.xcframework/
-VeilWalkerCore/.build/
-VeilWalkerCore/.swiftpm/
-rust/vw-tor/target/
+# Original hand-over archives and the loose copy of android/docs
+*.zip
+/docs/
 
-# Never commit signing material
-*.mobileprovision
+# Never commit signing material or secrets, anywhere
+*.keystore
+*.jks
 *.p12
 *.cer
+*.mobileprovision
 *.certSigningRequest
+.env
+.env.*
+local.properties
 
-# Snowflake framework (~200 MB): rebuild with snowflake/build-xcframework.sh
-VeilWalkerCore/Frameworks/VWFlake.xcframework/
+# Release builds and demo videos (AABs, mp4): kept locally in android/dist/
+android/dist/

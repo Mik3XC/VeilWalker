@@ -1,0 +1,25 @@
+[package]
+name = "trailbound-net"
+version = "0.1.0"
+edition = "2021"
+description = "Embedded Arti (Tor) client for VeilWalker Android, exposed as a local SOCKS5 port over JNI"
+license = "MIT OR Apache-2.0"
+
+[lib]
+name = "trailbound_net"
+crate-type = ["cdylib"]
+
+[dependencies]
+arti-client = { version = "0.47", default-features = false, features = ["tokio", "rustls", "onion-service-client", "compression", "static-sqlite"] }
+tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "macros", "sync", "time"] }
+tor-rtcompat = { version = "0.47", features = ["tokio", "rustls"] }
+jni = "0.21"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+anyhow = "1"
+once_cell = "1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true

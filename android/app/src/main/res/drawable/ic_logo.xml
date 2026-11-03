@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- In-app VeilWalker mark (same proportions as docs/brand/icon_hd.png), tight 48dp box with glow. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path android:pathData="M4,4 L44,4 L44,44 L4,44 Z" android:strokeColor="#9D8CFF" android:strokeAlpha="0.25" android:strokeWidth="6" />
+    <path android:pathData="M11,12 L24,37 L37,12" android:strokeColor="#9D8CFF" android:strokeAlpha="0.25" android:strokeWidth="8" android:strokeLineJoin="miter" />
+    <path android:pathData="M4,4 L44,4 L44,44 L4,44 Z" android:strokeColor="#B4A4FF" android:strokeWidth="2.8" />
+    <path android:pathData="M11,12 L24,37 L37,12" android:strokeColor="#A796FF" android:strokeWidth="4.4" android:strokeLineCap="butt" android:strokeLineJoin="miter" />
+    <path android:pathData="M20.4,17 a3.6,3.6 0 1,0 7.2,0 a3.6,3.6 0 1,0 -7.2,0" android:fillColor="#3DF0A8" />
+</vector>

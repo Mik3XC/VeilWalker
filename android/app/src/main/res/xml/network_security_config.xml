@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Cleartext stays blocked everywhere except .onion: onion services are end-to-end encrypted and
+     authenticated by Tor itself, and onion addresses can't get public TLS certificates in practice. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">onion</domain>
+    </domain-config>
+</network-security-config>

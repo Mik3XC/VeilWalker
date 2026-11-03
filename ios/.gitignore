@@ -1,0 +1,21 @@
+# Build output (everything builds into .build/)
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+.DS_Store
+
+# Tor framework binaries (~55 MB): rebuild with rust/vw-tor/build-xcframework.sh
+VeilWalkerCore/Frameworks/VWTor.xcframework/
+VeilWalkerCore/.build/
+VeilWalkerCore/.swiftpm/
+rust/vw-tor/target/
+
+# Never commit signing material
+*.mobileprovision
+*.p12
+*.cer
+*.certSigningRequest
+
+# Snowflake framework (~200 MB): rebuild with snowflake/build-xcframework.sh
+VeilWalkerCore/Frameworks/VWFlake.xcframework/
