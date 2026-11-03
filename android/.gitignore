@@ -11,3 +11,7 @@ app/src/main/jniLibs/
 *.keystore
 .env
 dist/
+
+# gomobile output and its Go cache: rebuilt by snowflake/build-aar.sh
+core/snowflake/libs/
+.build/

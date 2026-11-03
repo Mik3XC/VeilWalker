@@ -99,6 +99,7 @@ class WalkService : LifecycleService(), SensorEventListener {
             ACTION_FOREGROUND -> upgradeToGps()
             ACTION_SNOWFLAKE_EXTEND -> snowflake.extendWalkCap()
             ACTION_SNOWFLAKE_STOP -> snowflake.stop()
+            ACTION_SNOWFLAKE_START -> hostOnThisWalk()
             else -> {
                 // One walk at a time: a second start while walking is ignored rather than orphaning the first session.
                 if (isRunning) return START_NOT_STICKY
@@ -144,19 +145,26 @@ class WalkService : LifecycleService(), SensorEventListener {
         if (runCatching { startInForeground(withGps = true) }.isSuccess && gpsOn) requestLocation()
     }
 
-    /** Auto-detected movement must be 27 s of continuous steps within a minute, or it was nothing. */
+    /**
+     * Auto-detected movement must be 27 s of continuous steps within a minute, or it was nothing. Activity
+     * Recognition only fires again after the activity changes, so if steps are still arriving when the minute runs
+     * out (stop-start walking), give it one more minute instead of stopping and missing the walk.
+     */
     private fun confirmThenWalk() {
         status.value = WalkStatus.Confirming(0)
         lifecycleScope.launch {
             reader.recordDelta(StepSource.PASSIVE)   // bank passive steps; the walk's first window then includes the confirm phase
-            val deadline = System.currentTimeMillis() + 60_000
-            while (System.currentTimeMillis() < deadline) {
-                delay(1_000)
-                val walkingFor = if (walkingSinceMs == 0L) 0 else System.currentTimeMillis() - walkingSinceMs
-                status.value = WalkStatus.Confirming(walkingFor)
-                if (walkingFor >= AutoWalk.CONFIRM_MS) { startWalk(bankPassive = false); return@launch }
+            repeat(CONFIRM_CYCLES) { cycle ->
+                val deadline = System.currentTimeMillis() + 60_000
+                while (System.currentTimeMillis() < deadline) {
+                    delay(1_000)
+                    val walkingFor = if (walkingSinceMs == 0L) 0 else System.currentTimeMillis() - walkingSinceMs
+                    status.value = WalkStatus.Confirming(walkingFor)
+                    if (walkingFor >= AutoWalk.CONFIRM_MS) { startWalk(bankPassive = false); return@launch }
+                }
+                val stillStepping = System.currentTimeMillis() - lastStepMs < 5_000
+                if (!stillStepping || cycle == CONFIRM_CYCLES - 1) { abandon(); return@launch }
             }
-            abandon()
         }
     }
 
@@ -301,13 +309,21 @@ class WalkService : LifecycleService(), SensorEventListener {
 
             walk = w.copy(
                 steps = w.steps + steps,
-                distanceM = gps.totalDistanceM,
+                distanceM = WalkDistance.capped(gps.totalDistanceM, w.steps + steps),
                 verdict = if (verdictCount == 0) 1f else (verdictSum / verdictCount).toFloat(),
                 torUsed = w.torUsed || tor.isConnected,
                 coldClimbM = coldClimbM,
                 minTempF = listOfNotNull(w.minTempF, weather.weather.value?.tempF).minOrNull(),
             ).also { walkDao.update(it) }
         }
+    }
+
+    /** Hosting switched on mid-walk (Wake Mode's button): this walk becomes a Snowflake walk from now on. */
+    private fun hostOnThisWalk() {
+        if (!isRunning || mode == WalkMode.SNOWFLAKE) return
+        mode = WalkMode.SNOWFLAKE
+        startInForeground(withGps = gpsOn)   // adds the specialUse type to the running foreground service
+        startSnowflake()
     }
 
     private fun startSnowflake() {
@@ -405,6 +421,7 @@ class WalkService : LifecycleService(), SensorEventListener {
             private set
 
         private const val WINDOW_MS = 10_000L
+        private const val CONFIRM_CYCLES = 2            // one retry while steps are still arriving
         private const val CLIMB_STEP_M = 3.0          // hysteresis: ignore barometer jitter below this
         private const val MAX_RISE_PER_STEP_M = 0.25  // steep stairs are ~0.18 m per step
         private const val VIRTUAL_RISE_PER_STEP_M = 0.07  // a 10% trail at a 0.7 m stride: Everest = ~126K cold steps
@@ -416,6 +433,7 @@ class WalkService : LifecycleService(), SensorEventListener {
         private const val ACTION_FOREGROUND = "org.trailbound.walk.FOREGROUND"
         private const val ACTION_SNOWFLAKE_EXTEND = "org.trailbound.walk.SNOWFLAKE_EXTEND"
         private const val ACTION_SNOWFLAKE_STOP = "org.trailbound.walk.SNOWFLAKE_STOP"
+        private const val ACTION_SNOWFLAKE_START = "org.trailbound.walk.SNOWFLAKE_START"
 
         /** Live walk state for the UI. */
         val status = MutableStateFlow<WalkStatus>(WalkStatus.Idle)
@@ -425,6 +443,12 @@ class WalkService : LifecycleService(), SensorEventListener {
 
         /** Started by activity recognition; must confirm 27 s of steps before it's a walk. */
         fun autoIntent(ctx: Context) = Intent(ctx, WalkService::class.java).setAction(ACTION_AUTO)
+
+        /** Start hosting a snowflake on the walk that's running now (Wake Mode). */
+        fun snowflakeStartIntent(ctx: Context) = Intent(ctx, WalkService::class.java).setAction(ACTION_SNOWFLAKE_START)
+
+        /** Stop hosting; the walk carries on. */
+        fun snowflakeStopIntent(ctx: Context) = Intent(ctx, WalkService::class.java).setAction(ACTION_SNOWFLAKE_STOP)
 
         /** Sent when the app comes to the foreground so an auto-started walk can add GPS. */
         fun foregroundIntent(ctx: Context) = Intent(ctx, WalkService::class.java).setAction(ACTION_FOREGROUND)

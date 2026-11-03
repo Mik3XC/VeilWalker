@@ -1,7 +1,6 @@
 package org.trailbound.app.ui
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,7 +40,7 @@ fun AvatarPicker(selected: Int, onSelect: (Int) -> Unit) {
                 Modifier
                     .weight(1f)
                     .border(1.dp, if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, RectangleShape)
-                    .clickable { onSelect(i) }
+                    .veilClick { onSelect(i) }
                     .padding(vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

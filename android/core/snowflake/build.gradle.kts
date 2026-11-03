@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.coroutines.android)
-    // Snowflake proxy AAR built via gomobile — see core/snowflake/README.md
-    // implementation(files("libs/snowflake.aar"))
+    // The Tor Project's Snowflake proxy, built by snowflake/build-aar.sh (gomobile) from ios/snowflake/vwflake.
+    api(files("libs/vwflake.aar"))
+    testImplementation(libs.junit)
 }

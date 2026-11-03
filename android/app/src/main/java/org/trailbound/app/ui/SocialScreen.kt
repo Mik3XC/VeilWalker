@@ -2,7 +2,6 @@ package org.trailbound.app.ui
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -134,7 +133,7 @@ private fun PersonRow(rank: Int?, p: ApiClient.Person, onRemove: (() -> Unit)?) 
             Text("%,d steps this week".format(p.weekSteps), color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
         }
         if (onRemove != null) {
-            Text("x", color = MaterialTheme.colorScheme.outline, modifier = Modifier.width(32.dp).clickable(onClick = onRemove).padding(8.dp))
+            Text("x", color = MaterialTheme.colorScheme.outline, modifier = Modifier.width(32.dp).veilClick(onClick = onRemove).padding(8.dp))
         }
     }
 }

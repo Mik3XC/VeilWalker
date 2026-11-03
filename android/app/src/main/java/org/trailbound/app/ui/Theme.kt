@@ -38,7 +38,13 @@ private val Mono: Typography = Typography().run {
 
 @Composable
 fun VeilWalkerTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = Veil, typography = Mono) {
-        androidx.compose.material3.Surface(color = Veil.background, content = content)
+    LookProvider {
+        MaterialTheme(colorScheme = Veil, typography = Mono) {
+            // The look's backdrop (scanlines or the glass aurora) sits behind every screen.
+            androidx.compose.foundation.layout.Box {
+                VeilBackdrop()
+                androidx.compose.material3.Surface(color = Color.Transparent, contentColor = Veil.onBackground, content = content)
+            }
+        }
     }
 }

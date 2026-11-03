@@ -1,7 +1,6 @@
 package org.trailbound.app.ui
 
 import android.content.Context
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -71,19 +70,19 @@ fun ConsentScreen(onAccept: () -> Unit) {
         Text("// your control", color = green)
         Text("Withdraw consent and delete your account any time in @ account. Deletion removes your synced data.", color = dim)
 
-        Text("> read the consumer health data policy", color = violet, modifier = Modifier.clickable { uri.openUri(Consent.HEALTH_URL) })
-        Text("> read the privacy policy", color = violet, modifier = Modifier.clickable { uri.openUri(Consent.PRIVACY_URL) })
-        Text("> read the terms", color = violet, modifier = Modifier.clickable { uri.openUri(Consent.TERMS_URL) })
+        Text("> read the consumer health data policy", color = violet, modifier = Modifier.veilClick { uri.openUri(Consent.HEALTH_URL) })
+        Text("> read the privacy policy", color = violet, modifier = Modifier.veilClick { uri.openUri(Consent.PRIVACY_URL) })
+        Text("> read the terms", color = violet, modifier = Modifier.veilClick { uri.openUri(Consent.TERMS_URL) })
 
         Text(
             (if (health) "[x] " else "[ ] ") + "I consent to VeilWalker collecting and processing my step, motion and location data as described above.",
             color = if (health) green else MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.clickable { health = !health }.padding(vertical = 6.dp),
+            modifier = Modifier.veilClick { health = !health }.padding(vertical = 6.dp),
         )
         Text(
             (if (terms) "[x] " else "[ ] ") + "I'm 13 or older and agree to the terms.",
             color = if (terms) green else MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.clickable { terms = !terms }.padding(vertical = 6.dp),
+            modifier = Modifier.veilClick { terms = !terms }.padding(vertical = 6.dp),
         )
         VeilButton("Start walking", onAccept, enabled = health && terms, filled = true)
     }

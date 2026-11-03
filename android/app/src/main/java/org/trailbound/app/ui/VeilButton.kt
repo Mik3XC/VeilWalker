@@ -15,7 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.Role
+import android.view.HapticFeedbackConstants
+import androidx.compose.ui.composed
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,12 +41,13 @@ fun VeilButton(
     val muted = MaterialTheme.colorScheme.outline
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
+    val view = LocalView.current
 
     Box(
         modifier
             .fillMaxWidth()
             .background(if (pressed && enabled) accent else Color.Transparent)
-            .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
+            .clickable(interaction, indication = null, enabled = enabled, role = Role.Button) { view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK); onClick() }
             .padding(vertical = 6.dp, horizontal = 4.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
@@ -63,4 +67,10 @@ fun asciiBar(fraction: Double, width: Int = 22): String {
     // Show at least one '#' once anything has been walked, so day one isn't an empty bar.
     val filled = if (f > 0) maxOf(1, (f * width).toInt()) else 0
     return "[" + "#".repeat(filled) + ".".repeat(width - filled) + "] " + "%.1f%%".format(f * 100)
+}
+
+/** Plain tappable anything (tiles, bars, links) with the same light haptic tick as [VeilButton]. */
+fun Modifier.veilClick(enabled: Boolean = true, onClick: () -> Unit): Modifier = composed {
+    val view = LocalView.current
+    clickable(enabled = enabled, role = Role.Button) { view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK); onClick() }
 }

@@ -36,6 +36,8 @@ private val Credits = listOf(
         "Arti (Rust Tor) · MIT/Apache-2.0",
         "Tor network · volunteer relays",
         "Snowflake · BSD-3-Clause",
+        "Pion WebRTC · MIT",
+        "Go · BSD-3-Clause",
     ),
     "ANDROID & KOTLIN" to listOf(
         "Android SDK / AOSP     · Apache-2.0",

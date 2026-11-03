@@ -2,7 +2,6 @@ package org.trailbound.app.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -76,7 +75,7 @@ fun RouteCard(p: RouteProgress, compact: Boolean = false, onOpen: () -> Unit = {
                     "> postcards ${pos.unlocked.size}/${p.route.milestones.size}",
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.fillMaxWidth().clickable(onClick = onOpen),
+                    modifier = Modifier.fillMaxWidth().veilClick(onClick = onOpen),
                 )
                 return@Column
             }
@@ -85,7 +84,7 @@ fun RouteCard(p: RouteProgress, compact: Boolean = false, onOpen: () -> Unit = {
             pos.unlocked.forEach { m ->
                 Text(
                     (if (openPostcard == m.name) "▾ " else "▸ ") + m.name,
-                    Modifier.fillMaxWidth().clickable { openPostcard = if (openPostcard == m.name) null else m.name },
+                    Modifier.fillMaxWidth().veilClick { openPostcard = if (openPostcard == m.name) null else m.name },
                 )
                 if (openPostcard == m.name) Text(m.postcard, style = MaterialTheme.typography.bodyMedium)
             }

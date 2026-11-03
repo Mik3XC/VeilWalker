@@ -1,6 +1,5 @@
 package org.trailbound.app.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -136,7 +135,7 @@ fun StatsScreen(onBack: () -> Unit, vm: StatsViewModel = hiltViewModel()) {
                     if (r == range) "[$r]" else r,
                     color = if (r == range) violet else MaterialTheme.colorScheme.outline,
                     fontWeight = if (r == range) FontWeight.Bold else FontWeight.Normal,
-                    modifier = Modifier.clickable { range = r }.padding(vertical = 6.dp),
+                    modifier = Modifier.veilClick { range = r }.padding(vertical = 6.dp),
                 )
             }
         }

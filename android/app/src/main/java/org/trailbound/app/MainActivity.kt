@@ -23,6 +23,8 @@ import org.trailbound.app.ui.JourneyDetailScreen
 import org.trailbound.app.ui.JourneysScreen
 import org.trailbound.app.ui.StatsScreen
 import org.trailbound.app.ui.SocialScreen
+import org.trailbound.app.ui.SnowflakeScreen
+import org.trailbound.app.ui.WakeScreen
 import org.trailbound.app.ui.VeilWalkerTheme
 
 @AndroidEntryPoint
@@ -49,6 +51,8 @@ class MainActivity : ComponentActivity() {
                     "stats" -> { BackHandler(onBack = home); StatsScreen(onBack = home) }
                     "brag" -> { BackHandler(onBack = home); BragScreen(onBack = home) }
                     "credits" -> { BackHandler(onBack = home); CreditsScreen(onBack = home) }
+                    "snowflake" -> { BackHandler(onBack = home); SnowflakeScreen(onBack = home) }
+                    "wake" -> WakeScreen(onExit = home)   // consumes back itself: exit is a 1 s hold
                     else -> if (screen.startsWith("peak:")) {
                         val back = { screen = "journeys" }
                         BackHandler(onBack = back); PeakDetailScreen(screen.removePrefix("peak:"), onBack = back)
@@ -64,6 +68,8 @@ class MainActivity : ComponentActivity() {
                         onOpenStats = { screen = "stats" },
                         onOpenBrag = { screen = "brag" },
                         onOpenCredits = { screen = "credits" },
+                        onOpenSnowflake = { screen = "snowflake" },
+                        onOpenWake = { screen = "wake" },
                     )
                 }
             }

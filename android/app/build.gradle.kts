@@ -15,8 +15,8 @@ android {
         applicationId = "com.premisei3.veilwalker"   // permanent on Play; code namespace stays org.trailbound.app
         minSdk = 28          // Android 9
         targetSdk = 36       // Play requirement for new apps (Aug 2026)
-        versionCode = 3
-        versionName = "0.3.0"
+        versionCode = 4
+        versionName = "0.4.0"
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
     }
 
@@ -82,4 +82,5 @@ dependencies {
     implementation(libs.hilt.work)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.work.runtime)
+    testImplementation(libs.junit)
 }

@@ -96,6 +96,14 @@ fun AccountScreen(onBack: () -> Unit, vm: AccountViewModel = hiltViewModel()) {
             )
         }
 
+        val look = LocalLook.current
+        val switchLook = LocalSwitchLook.current
+        VeilButton("Look: ${look.title} (tap to switch)", switchLook, glyph = "~")
+        Text(
+            "// terminal is the classic flat look. glass is frosted panels over a drifting ASCII aurora. Tap the logo on the home screen to switch too.",
+            color = MaterialTheme.colorScheme.outline, style = MaterialTheme.typography.bodySmall,
+        )
+
         VeilButton(if (weatherOn) "Weather: on (tap to turn off)" else "Weather: off (tap to turn on)", vm::toggleWeather, glyph = if (weatherOn) "*" else "o")
         Text(
             "// what weather collects: your last known location, rounded to about 11 km, is sent straight from " +

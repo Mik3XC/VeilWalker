@@ -29,4 +29,5 @@ dependencies {
     implementation(libs.hilt.work)
     ksp(libs.hilt.work.compiler)
     implementation(libs.play.location)
+    testImplementation(libs.junit)
 }
