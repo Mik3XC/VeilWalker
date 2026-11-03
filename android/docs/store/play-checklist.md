@@ -25,7 +25,8 @@ downloads only its own CPU type). 64-bit native libraries checked for 16 KB page
       matches a client, frost minutes accrue, `adb logcat | grep -i country` is empty
 - [x] **Privacy page** (Google Site, Snowflake section), published 2026-11-03: replaced the paragraph with the new text in
       `docs/legal/privacy-policy.md` (Wake Mode, IP visible to the broker and the people helped, only a byte total kept)
-- [ ] Upload `dist/VeilWalker-0.4.0.aab` to a new production release (owner; over the 10 MB browser limit)
+- [x] Uploaded to production release 2, "4 (0.4.0)" (owner, 2026-11-03); notes filled; review page: 0 errors, 2 warnings
+      (download size +6 MB to 10.9 MB for new installs; no debug symbols); same 9,832 phones / 6,104 tablets supported
 - [ ] Foreground services: no new types. specialUse (Snowflake during walks) now really runs; the existing description
       and video still apply. If Play asks again, open the form **from the release** (…?releaseId=…&trackId=…)
 - [ ] Data safety: no change (Snowflake relays others' encrypted traffic; only a byte total is kept on the phone)
@@ -38,7 +39,7 @@ downloads only its own CPU type). 64-bit native libraries checked for 16 KB page
       Snowflake is live: host a Tor Snowflake on your walks to help people past censorship and frost your badges.
       Walk distance can no longer run ahead of your steps.
 
-- [ ] **Staged rollout 20%**, watch Android vitals (crashes/ANRs; the Go runtime is new native code) for 48 h, then 100%
+- [x] **Staged rollout 20%** set (Publishing overview: "Start staged rollout at 20%");, watch Android vitals (crashes/ANRs; the Go runtime is new native code) for 48 h, then 100%
 - [ ] **Send for review: owner only**
 
 ## Remaining
